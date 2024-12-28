@@ -58,9 +58,9 @@ class Plotting:
 
         # create range of rho
         if rho_lim != None:
-            if rho_lim.type != list:
+            if type(rho_lim).__name__ != 'list':
                 raise ValueError
-            rho = np.linspace(rho_lim)
+            rho = np.linspace(rho_lim[0], rho_lim[1], 500)
         rho = np.linspace(0, 2, 500)
         m_pos = rho/rho_hat*m_hat + np.sqrt(rho/rho_hat)*ci*(rho-rho_hat)
         m_neg = rho/rho_hat*m_hat - np.sqrt(rho/rho_hat)*ci*(rho-rho_hat)
