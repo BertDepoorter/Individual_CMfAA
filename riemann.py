@@ -73,6 +73,7 @@ class riemann:
         - array of (rho, v) values
         '''
         rho_hat, v_hat = U
+        c_i = np.sqrt(self.R_gas*self.T)
 
         # check input type
         if (wave_type != '1-rarefaction') and (wave_type != '2-rarefaction'):
@@ -80,9 +81,9 @@ class riemann:
 
         # proceed to calculation 
         if wave_type == '1-rarefaction':
-            v = v_hat - c_i * np.log(rho / rho_hat)
+            v = v_hat - c_i * np.log(rho_range / rho_hat)
         elif wave_type == '2-rarefaction':
-            v = v_hat + c_i * np.log(rho / rho_hat)
+            v = v_hat + c_i * np.log(rho_range / rho_hat)
         return v
 
     def solve_riemann_problem(self, method, limiter, timestepper):
@@ -112,6 +113,4 @@ class riemann:
         # here mke sure the right subfunctions are called
 
     def _TVDLF_flux_step(self, U_range):
-        '''
-        
-        '''
+        pass
