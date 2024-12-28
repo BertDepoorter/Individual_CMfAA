@@ -15,7 +15,7 @@ import scipy as sp
 
 # idea: use default scipy methods to solve this type of problem and compare the results.
 
-class Plotting:
+class plotting:
     '''
     Class containing different functions necessary for plotting. 
     Only once intialize the class: define some important constants necessary for nearly all problems. 
