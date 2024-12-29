@@ -15,13 +15,15 @@ class riemann:
     of the 1D Riemann problem for isothermal hydrodynamics
     '''
 
-    def __init__(self, rho_L, rho_R, T=1, mu=1):
+    def __init__(self, rho_L, rho_R, v_L, v_R, T=1, mu=1):
         '''
         Initialize with Riemann initial conditions
 
         input:
         - rho_L (float): density for x<0
         - rho_R (float): density for x>0
+        - v_L (float): velocity for x<0
+        - v_R (float): velocity for x>0
         (optional)
         - T (float): temperature at which we keep the heat bath
         - mu (float): molecular mass in atomic mass units
@@ -35,6 +37,8 @@ class riemann:
         self.R_gas = kB/self.mu/m_p
         self.rho_L = rho_L
         self.rho_R = rho_R
+        self.v_L = v_L
+        self.v_R = v_R
     
     def hugoniot_locus(self, U, rho_range):
         '''
@@ -81,12 +85,19 @@ class riemann:
 
         # proceed to calculation 
         if wave_type == '1-rarefaction':
-            m = v_hat*rho_range - c_i*rho_range * np.log(rho_range / rho_hat)
+            m = v_hat*rho_range - c_i * rho_range * np.log(rho_range / rho_hat)
         elif wave_type == '2-rarefaction':
-            m = v_hat*rho_range + c_i * rho_range*np.log(rho_range / rho_hat)
+            m = v_hat*rho_range + c_i * rho_range * np.log(rho_range / rho_hat)
         return m
 
-    def solve_riemann_problem(self, method, limiter, timestepper):
+    def solve_riemann_problem(self, 
+                            method='tvdlf', 
+                            limiter='minmod', 
+                            timestepper='onestep', 
+                            nx=100,
+                            cfl=0.8, 
+                            t_end=2
+                            ):
         '''
         Function that solves the 1D Riemann problem numerically. 
 
@@ -97,6 +108,13 @@ class riemann:
             Options: 'minmod', 'woodward'
         - timestepper (str): which numerical scheme to use for the numerical time integraton of fluxes
             Options: 'onestep', 'twostep'
+        - nx (int): number of discrete spatial cells
+        - cfl (foat): determines maximal time step to enforce TVD
+        - t_end (float): time for which we simulate behaviour of the system
+
+        output:
+        - rho (array): final values for density
+        - momentum (array): final values for momentum
         '''
         methods = ['tvdlf', 'upwind', 'maccormack']
         if method not in methods:
@@ -110,7 +128,62 @@ class riemann:
         if limiter not in limiters:
             raise ValueError("Invalid limiter. Choose from 'minmod' or 'woodward'.")
         
-        # here mke sure the right subfunctions are called
+        # get speed of sound
+        c_s = np.srt(self.R_gas*self.T)
+
+        # initial discretization setup
+        nx = 100
+        x = np.linspace(0, 1, nx)
+        dx = x[1] - x[0]
+        dt = cfl * dx / c_s  # CFL condition
+
+        # initialize U: density and momentum vector
+        U = np.zeros((nx, 2))
+        mid = nx//2
+
+        # initialize left and right state with Riemann initial conditions
+        U[:mid, 0] = self.rho_L
+        U[:mid, 1] = self.v_L * self.rho_L
+        U[mid:, 0] = self.rho_R
+        U[mid:, 1] = self.v_R * self.rho_R
+
+        # do time integration (spatial flux calculation is done under the hood)
+        t = 0
+        while t < t_end:
+            if timestepper == 'onestep':
+                U = timestep(U, dx, dt, method, limiter)
+            elif timestepper == 'twostep':
+                # employ 2 step predictor corrector method
+                U_predictor = timestep(U, dx, dt, method, limiter)
+                U = 1/2 * (U + timestep(U_predictor, dx, dt, method, limiter))
+            t += dt
+        
+        # return final value
+        rho = U[:, 0]
+        momentum = U[:, 1]
+        return rho, momentum
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     def _TVDLF_flux_step(self, U_range):
         pass

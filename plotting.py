@@ -152,7 +152,7 @@ class plotting:
         if rho_lim != None:
             rho = np.linspace(rho_lim[0], rho_lim[1], 500)
         else: 
-            rho = np.linspace(0.04, 2, 500)
+            rho = np.linspace(0.0, 2, 500)
         
         # get Hugoniot locus
         m = self.riemann.hugoniot_locus(U, rho)
