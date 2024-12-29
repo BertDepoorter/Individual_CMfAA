@@ -23,13 +23,15 @@ class plotting:
 
     We just list different functions that take the solutions to various problems and then immediately plot them
     '''
-    def __init__(self, rho_L, rho_R, mu=1, T=1):
+    def __init__(self, rho_L, rho_R, v_L, v_R, mu=1, T=1):
         '''
         Initialize class with some necassary general variables.
 
         Input:
         - rho_L (float): initial density x<0
         - rho_R (float): initial density x>0
+        - v_L (float): initial velocity x<0
+        - v_R (float): initial velocity x>0
         (optional)
         - mu (float): molecular mass of the gas molecules 
         - T (float): temperature of the gas (isothermal so the same for all gas molecules.)
@@ -38,11 +40,19 @@ class plotting:
         m_p = 1 # mass of 1 proton
         self.R_gas = kB/mu/m_p
         self.T = T
+        self.mu = mu
 
         # initialize Riemann class necessary to calculate stuff
         self.rho_R = rho_R
         self.rho_L = rho_L
-        self.riemann = riemann(rho_L, rho_R)
+        self.v_L = v_L
+        self.v_R = v_R
+        self.riemann = riemann(self.rho_L,
+                               self.rho_R, 
+                               self.v_L, 
+                               self.v_R, 
+                               T=self.T, 
+                               mu=self.mu)
 
     def plot_Hugoniot_locus(self, U, rho_lim=None, v_lim=None, name='Hugoniot_locus', title='Hugoniot locus'):
         '''
@@ -214,9 +224,7 @@ class plotting:
             'timestepper': timestepper,
             'limiter': limiter,
             't_end': t_end,
-            'nx': nx,
-            'name': name,
-            'title': title
+            'nx': nx
         }
 
         x, rho, momentum = self.riemann.solve_riemann_problem(**params)

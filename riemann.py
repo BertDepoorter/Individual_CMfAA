@@ -225,8 +225,8 @@ class riemann:
                 U_L = U[i]+limited_slope/2
                 U_R = U[i+1] - limited_slope/2
                 # compute max speed
-                max_speed = max(abs(U_L[i,1]/U_L[i,0])+self.c_s,
-                                 abs(U_R[i+1,1]/U_R[i+1,0])+self.c_s)
+                max_speed = max(abs(U_L[1]/U_L[0])+self.c_s,
+                                 abs(U_R[1]/U_R[0])+self.c_s)
                 F_half[i] = 0.5*(self.flux(U_L)+ self.flux(U_R) - max_speed*(U_R - U_L))
 
             elif method == 'maccormack':
