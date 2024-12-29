@@ -131,7 +131,8 @@ class riemann:
         nx = 100
         x = np.linspace(-1, 1, nx)
         dx = x[1] - x[0]
-        dt = cfl * dx / self.c_s  # CFL condition
+        v_max = max(abs(self.v_L), abs(self.v_R))+self.c_s
+        dt = cfl * dx / v_max  # CFL condition
 
         # initialize U: density and momentum vector
         U = np.zeros((nx, 2))
