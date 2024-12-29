@@ -171,7 +171,7 @@ class plotting:
         ax.plot(rho, m_2, linestyle=':', label='2-rarefaction')
 
         # Plot initial state
-        ax.scatter(U[0], U[1], s=70, label='Initial state', markersize='*')
+        ax.scatter(U[0], U[1], s=70, label='Initial state', marker='*')
 
         # Make nice plot
         ax.legend()
