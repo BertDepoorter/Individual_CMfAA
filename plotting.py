@@ -183,3 +183,57 @@ class plotting:
         fig.savefig(name_fig, dpi=300)
         plt.show()
 
+    def plot_numerical_solution(self, 
+                                method, 
+                                limiter, 
+                                timestepper,
+                                t_end=2.0,
+                                nx=100,
+                                name='Final_state_density_momentum', 
+                                title='Final state'
+                                ):
+        '''
+        This is a function that plots the final result for density and momentum after numericallly solving Riemann problem. 
+
+        input:
+        - method (str): flux scheme to use
+        - limiter (str): limit the slope reconstruction
+        - timestepper (str): how to do the time integration
+        (optional)
+        - t_end (float): for how long to run the simulation 
+            default is 2.0
+        - nx (int): number of spatial points
+            default is 100
+        - name (str): name of the saved figure
+            Default is 'final_state_density_momentum'
+        - title (str): title for the plot
+            default is 'Final state'
+        '''
+        params = {
+            'method': method,
+            'timestepper': timestepper,
+            'limiter': limiter,
+            't_end': t_end,
+            'nx': nx,
+            'name': name,
+            'title': title
+        }
+
+        x, rho, momentum = self.riemann.solve_riemann_problem(**params)
+
+        fig, ax = plt.subplots(2, 1, figsize=(8, 14))
+        
+        ax[0].plot(x, rho, label=r'density $\rho$')
+        ax[0].set_xlabel('x', fontsize=13)
+        ax[0].set_ylabel(r'density $\rho$', fontsize=13)
+        ax[0].set_title('Final density profile', fontsize=16)
+        
+        ax[1].plot(x, momentum, color='orange', label=r'Momentum $m$')
+        ax[1].set_xlabel('x', fontsize=13)
+        ax[1].set_ylabel(r'Momentum $m$', fontsize=13)
+        ax[1].set_title('Final momentum profile', fontsize=16)
+
+        ax[0].legend(), ax[1].legend()
+        name_fig = 'Plots/'+name+'.png'
+        fig.savefig(name_fig, dpi=300)
+        plt.show()

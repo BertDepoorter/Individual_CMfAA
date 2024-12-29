@@ -129,7 +129,7 @@ class riemann:
 
         # initial discretization setup
         nx = 100
-        x = np.linspace(0, 1, nx)
+        x = np.linspace(-1, 1, nx)
         dx = x[1] - x[0]
         dt = cfl * dx / self.c_s  # CFL condition
 
@@ -147,17 +147,17 @@ class riemann:
         t = 0
         while t < t_end:
             if timestepper == 'onestep':
-                U = timestep(U, dx, dt, method, limiter)
+                U = self.timestep(U, dx, dt, method, limiter)
             elif timestepper == 'twostep':
                 # employ 2 step predictor corrector method
-                U_predictor = timestep(U, dx, dt, method, limiter)
-                U = 1/2 * (U + timestep(U_predictor, dx, dt, method, limiter))
+                U_predictor =self.timestep(U, dx, dt, method, limiter)
+                U = 1/2 * (U + self.timestep(U_predictor, dx, dt, method, limiter))
             t += dt
         
         # return final value
         rho = U[:, 0]
         momentum = U[:, 1]
-        return rho, momentum
+        return x, rho, momentum
     
     def flux(self, U):
         '''
@@ -171,7 +171,7 @@ class riemann:
         '''
         rho = U[0]
         v = U[1]/U[0]
-        return np.array([rho * v, rho * v**2 + c_s**2 * rho])
+        return np.array([rho * v, rho * v**2 + self.c_s**2 * rho])
     
     def limit_slope(self, slope_L, slope_R, limiter):
         '''
@@ -212,14 +212,13 @@ class riemann:
         '''
         nx = len(U)
         F_half = np.zeros((nx-1, 2))
-        c_s = np.sqrt(self.R_gas*self.T)
 
         # compute fluxes at cell interfaces:
         for i in range(nx-1):
             # Compute slopes from limiters
             slope_L = U[i] - U[i-1]
             slope_R = U[i+1] - U[i]
-            limited_slope = limit_slope(slope_L, slope_R, limiter)
+            limited_slope = self.limit_slope(slope_L, slope_R, limiter)
 
             # Do the actual flux computation
             if method == 'tvdlf':
@@ -228,19 +227,19 @@ class riemann:
                 # compute max speed
                 max_speed = max(abs(U_L[i,1]/U_L[i,0])+self.c_s,
                                  abs(U_R[i+1,1]/U_R[i+1,0])+self.c_s)
-                F_half[i] = 0.5*(flux(U_L)+ flux(U_R) - max_speed*(U_R - U_L))
+                F_half[i] = 0.5*(self.flux(U_L)+ self.flux(U_R) - max_speed*(U_R - U_L))
 
             elif method == 'maccormack':
                 # use predictor - corrector type method
                 # predictor step: forward difference
-                predictor = U[i] - dt/dx * (flux(U[i+1])-flux(U[i]))
+                predictor = U_L - dt/dx * (self.flux(U_R)-self.flux(U_L))
                 # corrector step: backward difference
-                F_half[i] = 1/2 * (flux(U[i])+flux(predictor))
+                F_half[i] = 1/2 * (self.flux(U_L)+self.flux(predictor))
         
             elif method == 'upwind':
                 # use no information from neighbouring cells
                 # directly update using the flux from only this cell
-                F_half[i] = flux(U[i])
+                F_half[i] = self.flux(U_L)
 
         # Update the conserved variables
         U_new = U.copy()
@@ -251,114 +250,3 @@ class riemann:
     
     
     
-        
-            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    def _TVDLF_flux_step(self, U_range):
-        pass
-
-    def solve_riemann_problem_numerically(method, limiter, timestepper):
-        """
-        Solves the 1D Riemann problem numerically using specified methods.
-
-        input:
-        - method (str): flux discretization method ('tvdlf', 'upwind', 'maccormack')
-        - limiter (str): flux reconstruction limiter ('minmod', 'woodward')
-        - timestepper (str): time integration scheme ('onestep', 'twostep')
-
-        output:
-        - Numerical solution for the Riemann problem.
-        """
-        def flux(U):
-            """Compute the flux for the isothermal hydrodynamics system."""
-            rho, momentum = U
-            v = momentum / rho
-            return np.array([rho * v, rho * v**2 + c_s**2 * rho])
-
-        def apply_limiter(slope_L, slope_R, limiter):
-            """Apply the chosen limiter to compute the reconstructed slope."""
-            if limiter == 'minmod':
-                return np.sign(slope_L) * np.maximum(0, np.minimum(abs(slope_L), abs(slope_R)))
-            elif limiter == 'woodward':
-                return np.maximum(0, np.minimum((slope_L + slope_R) / 2, 2 * slope_L, 2 * slope_R))
-            else:
-                raise ValueError("Invalid limiter. Choose 'minmod' or 'woodward'.")
-
-        def timestep(U, dx, dt, method):
-            """Advance the solution one time step using the chosen method."""
-            nx = len(U)
-            F_half = np.zeros((nx - 1, 2))
-
-            # Compute fluxes at cell interfaces
-            for i in range(nx - 1):
-                if method == 'tvdlf':
-                    max_lambda = max(abs(U[i][1] / U[i][0]) + c_s, abs(U[i + 1][1] / U[i + 1][0]) + c_s)
-                    F_half[i] = 0.5 * (flux(U[i]) + flux(U[i + 1]) - max_lambda * (U[i + 1] - U[i]))
-                elif method == 'upwind':
-                    F_half[i] = flux(U[i])
-                elif method == 'maccormack':
-                    # Predictor step (forward difference)
-                    predictor = U[i] - dt / dx * (flux(U[i + 1]) - flux(U[i]))
-                    # Corrector step (backward difference)
-                    F_half[i] = 0.5 * (flux(U[i]) + flux(predictor))
-                else:
-                    raise ValueError("Invalid method. Choose 'tvdlf', 'upwind', or 'maccormack'.")
-
-            # Update conserved variables
-            U_new = U.copy()
-            for i in range(1, nx - 1):
-                U_new[i] -= dt / dx * (F_half[i] - F_half[i - 1])
-            return U_new
-
-        # Initial setup
-        nx = 100
-        x = np.linspace(0, 1, nx)
-        dx = x[1] - x[0]
-        dt = 0.5 * dx / c_s  # CFL condition
-
-        # Initialize U (density and momentum)
-        U = np.zeros((nx, 2))
-        mid = nx // 2
-        U[:mid, 0] = 1.0  # Left density
-        U[:mid, 1] = 1.0 * 0.5  # Left momentum
-        U[mid:, 0] = 0.5  # Right density
-        U[mid:, 1] = 0.5 * -0.5  # Right momentum
-
-        # Time integration
-        t = 0
-        t_end = 0.2
-        while t < t_end:
-            if timestepper == 'onestep':
-                U = timestep(U, dx, dt, method)
-            elif timestepper == 'twostep':
-                # Perform a predictor-corrector step
-                U_predictor = timestep(U, dx, dt, method)
-                U = 0.5 * (U + timestep(U_predictor, dx, dt, method))
-            else:
-                raise ValueError("Invalid timestepper. Choose 'onestep' or 'twostep'.")
-            t += dt
-
-        # Extract final density and velocity
-        rho = U[:, 0]
-        v = U[:, 1] / rho
-        return x, rho, v
