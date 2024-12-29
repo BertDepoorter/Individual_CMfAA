@@ -39,6 +39,8 @@ class riemann:
         self.rho_R = rho_R
         self.v_L = v_L
         self.v_R = v_R
+
+        self.c_s = np.sqrt(self.T*self.R_gas)
     
     def hugoniot_locus(self, U, rho_range):
         '''
@@ -51,15 +53,12 @@ class riemann:
         output:
         - array containing the values for 2 diff Hugoniot curves
         '''
-        ci = np.sqrt(self.R_gas*self.T)
-
-
         rho_hat, m_hat = U
-        ci = np.sqrt(self.R_gas*self.T)
+
 
         # calculate hugoniot loci
-        m_pos = rho_range/rho_hat*m_hat + np.sqrt(rho_range/rho_hat)*ci*(rho_range-rho_hat)
-        m_neg = rho_range/rho_hat*m_hat - np.sqrt(rho_range/rho_hat)*ci*(rho_range-rho_hat)
+        m_pos = rho_range/rho_hat*m_hat + np.sqrt(rho_range/rho_hat)*self.c_s*(rho_range-rho_hat)
+        m_neg = rho_range/rho_hat*m_hat - np.sqrt(rho_range/rho_hat)*self.c_s*(rho_range-rho_hat)
 
         return np.array([m_pos, m_neg])
     
@@ -77,7 +76,7 @@ class riemann:
         - array of (rho, v) values
         '''
         rho_hat, v_hat = U
-        c_i = np.sqrt(self.R_gas*self.T)
+       
 
         # check input type
         if (wave_type != '1-rarefaction') and (wave_type != '2-rarefaction'):
@@ -85,9 +84,9 @@ class riemann:
 
         # proceed to calculation 
         if wave_type == '1-rarefaction':
-            m = v_hat*rho_range - c_i * rho_range * np.log(rho_range / rho_hat)
+            m = v_hat*rho_range - self.c_s * rho_range * np.log(rho_range / rho_hat)
         elif wave_type == '2-rarefaction':
-            m = v_hat*rho_range + c_i * rho_range * np.log(rho_range / rho_hat)
+            m = v_hat*rho_range + self.c_s * rho_range * np.log(rho_range / rho_hat)
         return m
 
     def solve_riemann_problem(self, 
@@ -127,15 +126,12 @@ class riemann:
         limiters = ['minmod', 'woodward']
         if limiter not in limiters:
             raise ValueError("Invalid limiter. Choose from 'minmod' or 'woodward'.")
-        
-        # get speed of sound
-        c_s = np.srt(self.R_gas*self.T)
 
         # initial discretization setup
         nx = 100
         x = np.linspace(0, 1, nx)
         dx = x[1] - x[0]
-        dt = cfl * dx / c_s  # CFL condition
+        dt = cfl * dx / self.c_s  # CFL condition
 
         # initialize U: density and momentum vector
         U = np.zeros((nx, 2))
@@ -162,8 +158,101 @@ class riemann:
         rho = U[:, 0]
         momentum = U[:, 1]
         return rho, momentum
+    
+    def flux(self, U):
+        '''
+        Function that calculates flux based on a given state U[i]
 
+        input:
+        - U (2-dim array): contains rho, momentum for given spatial grid point
 
+        output:
+        - outward flux based on analytical calculation
+        '''
+        rho = U[0]
+        v = U[1]/U[0]
+        return np.array([rho * v, rho * v**2 + c_s**2 * rho])
+    
+    def limit_slope(self, slope_L, slope_R, limiter):
+        '''
+        Function that limits the slope reconstruction.
+
+        input: 
+        - slope_L (float): slope on the left boundary
+        - slope_R (float): slope on the irght boundary
+        - limiter (str): which limiting procedure to use
+            Options: 'minmod', 'woodward'
+
+        output:
+        - limited slope of the conserved variables.    
+        '''
+        if limiter == 'minmod':
+            slope_lim = np.sign(slope_L) * np.maximum(0, np.minimum(abs(slope_L), abs(slope_R)))
+        elif limiter == 'woodward':
+            slope_lim =np.maximum(0, np.minimum((slope_L + slope_R) / 2, 2 * slope_L, 2 * slope_R))
+        else:
+            raise NotImplementedError("Method not implemented. Choose from 'minmod', 'woodward'. ")
+        return slope_lim
+
+    def timestep(self, U, dx, dt, method, limiter):
+        '''
+        Function that integrates over the time using different flux schemes and limiter methods
+
+        input:
+        - U (array): density and momentum over discretized grid
+        - dx (float): spatial discretization interval
+        - dt (float): time discretization interval
+        - method (str): flux scheme method
+            Options: 'tvdlf', 'maccormack', 'upwind'
+        - limiter (str): limiter for flux reconstruction using interpolation method
+            Options: 'minmod', 'woodward
+
+        output:
+        - U (array) after one timestep dt for all spatial cells
+        '''
+        nx = len(U)
+        F_half = np.zeros((nx-1, 2))
+        c_s = np.sqrt(self.R_gas*self.T)
+
+        # compute fluxes at cell interfaces:
+        for i in range(nx-1):
+            # Compute slopes from limiters
+            slope_L = U[i] - U[i-1]
+            slope_R = U[i+1] - U[i]
+            limited_slope = limit_slope(slope_L, slope_R, limiter)
+
+            # Do the actual flux computation
+            if method == 'tvdlf':
+                U_L = U[i]+limited_slope/2
+                U_R = U[i+1] - limited_slope/2
+                # compute max speed
+                max_speed = max(abs(U_L[i,1]/U_L[i,0])+self.c_s,
+                                 abs(U_R[i+1,1]/U_R[i+1,0])+self.c_s)
+                F_half[i] = 0.5*(flux(U_L)+ flux(U_R) - max_speed*(U_R - U_L))
+
+            elif method == 'maccormack':
+                # use predictor - corrector type method
+                # predictor step: forward difference
+                predictor = U[i] - dt/dx * (flux(U[i+1])-flux(U[i]))
+                # corrector step: backward difference
+                F_half[i] = 1/2 * (flux(U[i])+flux(predictor))
+        
+            elif method == 'upwind':
+                # use no information from neighbouring cells
+                # directly update using the flux from only this cell
+                F_half[i] = flux(U[i])
+
+        # Update the conserved variables
+        U_new = U.copy()
+        for i in range(1, nx-1):
+            # Update all interior grid points using flux difference (conservation law)
+            U_new[i] -= dt/dx *(F_half[i]-F_half[i-1])
+        return U_new
+    
+    
+    
+        
+            
 
 
 
