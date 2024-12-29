@@ -124,7 +124,7 @@ class plotting:
         fig, ax = plt.subplots(1, 1, figsize=(8,6))
         ax.plot(rho, m_1, linestyle='--', label='1-rarefaction')
         ax.plot(rho, m_2, linestyle='--', label='2-rarefaction')
-        ax.scatter(U[0], U[1], s=70, marker='*', label='Initial state')
+        ax.scatter(U[0], U[1]*U[0], s=70, marker='*', label='Initial state')
 
         ax.legend()
 
@@ -181,7 +181,7 @@ class plotting:
         ax.plot(rho, m_2, linestyle=':', label='2-rarefaction')
 
         # Plot initial state
-        ax.scatter(U[0], U[1], s=70, label='Initial state', marker='*')
+        ax.scatter(U[0], U[1]*U[0], s=70, label='Initial state', marker='*')
 
         # Make nice plot
         ax.legend()
