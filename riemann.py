@@ -81,10 +81,10 @@ class riemann:
 
         # proceed to calculation 
         if wave_type == '1-rarefaction':
-            v = v_hat - c_i * np.log(rho_range / rho_hat)
+            m = v_hat*rho_range - c_i*rho_range * np.log(rho_range / rho_hat)
         elif wave_type == '2-rarefaction':
-            v = v_hat + c_i * np.log(rho_range / rho_hat)
-        return v
+            m = v_hat*rho_range + c_i * rho_range*np.log(rho_range / rho_hat)
+        return m
 
     def solve_riemann_problem(self, method, limiter, timestepper):
         '''

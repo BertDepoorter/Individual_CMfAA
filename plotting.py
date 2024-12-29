@@ -44,7 +44,7 @@ class plotting:
         self.rho_L = rho_L
         self.riemann = riemann(rho_L, rho_R)
 
-    def plot_Hugoniot_locus(self, U, rho_lim=None, v_lim=None, name='Hugoniot_locus'):
+    def plot_Hugoniot_locus(self, U, rho_lim=None, v_lim=None, name='Hugoniot_locus', title='Hugoniot locus'):
         '''
         Exercise 4.3: function for plotting the solutions to the equations
         governing the Hugoniot locus.
@@ -81,14 +81,14 @@ class plotting:
 
         ax.set_xlabel(r'Mass density $\rho$', fontsize=13)
         ax.set_ylabel(r"Momentum $m$", fontsize=13)
-        ax.set_title('Hugoniot locus', fontsize=17)
+        ax.set_title(title, fontsize=17)
         ax.legend()
 
         name_fig = 'Plots/'+name+'.png'
         fig.savefig(name_fig, dpi=300)
         plt.show()
 
-    def plot_integral_curves(self, U, rho_lim=None, v_lim=None, name='Integral_curves'):
+    def plot_integral_curves(self, U, rho_lim=None, v_lim=None, name='Integral_curves', title='Integral curves'):
         '''
         Plot the integral curves for a given state U = (rho, m)
 
@@ -108,18 +108,19 @@ class plotting:
             rho = np.linspace(rho_lim[0], rho_lim[1], 500)
         rho = np.linspace(0, 2, 500)
 
-        v_1 = self.riemann.integral_curve(U, rho, wave_type='1-rarefaction')
-        v_2 = self.riemann.integral_curve(U, rho, wave_type='2-rarefaction')
+        m_1 = self.riemann.integral_curve(U, rho, wave_type='1-rarefaction')
+        m_2 = self.riemann.integral_curve(U, rho, wave_type='2-rarefaction')
 
         fig, ax = plt.subplots(1, 1, figsize=(8,6))
-        ax.plot(rho, v_1, linestyle='--', label='1-rarefaction')
-        ax.plot(rho, v_2, linestyle='--', label='2-rarefaction')
+        ax.plot(rho, m_1, linestyle='--', label='1-rarefaction')
+        ax.plot(rho, m_2, linestyle='--', label='2-rarefaction')
+        ax.scatter(U[0], U[1], s=70, marker='*', label='Initial state')
 
         ax.legend()
 
         ax.set_xlabel(r'Mass density $\rho$', fontsize=13)
-        ax.set_ylabel(r'velocity $v$', fontsize=13)
-        ax.set_title('Integral curves', fontsize=17)
+        ax.set_ylabel(r'Momentum $m$', fontsize=13)
+        ax.set_title(title, fontsize=17)
 
         name_plot = 'Plots/'+name+'.png'
         fig.savefig(name_plot, dpi=300)
