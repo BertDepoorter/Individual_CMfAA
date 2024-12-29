@@ -8,7 +8,7 @@ Different plotting methods can visualize various aspects of the problem.
 from riemann import riemann
 
 # import general libraries
-import matplotlib.pyplot as pl
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy as sp
 
@@ -74,12 +74,15 @@ class plotting:
 
         fig, ax = plt.subplots(1,1)
         ax.plot(rho, m_pos, color='blue', label='Positive solution')
-        ax.plot(rho, m_neg, color='blue', label='Negative solution')
-        ax.set_ylim(v_lim)
+        ax.plot(rho, m_neg, color='orange', label='Negative solution')
+        ax.scatter(U[0], U[1], marker='*', s=70, label='Initial state')
+        if v_lim != None:  
+            ax.set_ylim(v_lim)
 
         ax.set_xlabel(r'Mass density $\rho$', fontsize=13)
         ax.set_ylabel(r"Momentum $m$", fontsize=13)
         ax.set_title('Hugoniot locus', fontsize=17)
+        ax.legend()
 
         name_fig = 'Plots/'+name+'.png'
         fig.savefig(name_fig, dpi=300)
