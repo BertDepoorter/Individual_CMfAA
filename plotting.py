@@ -125,3 +125,61 @@ class plotting:
         name_plot = 'Plots/'+name+'.png'
         fig.savefig(name_plot, dpi=300)
         plt.show()
+
+
+
+    def plot_integral_hugoniot(self, 
+                               U, 
+                               title='Hugoniot locus vs. integral curve', 
+                               rho_lim=None, 
+                               v_lim=None, 
+                               name='hugoniot_integral'):
+        '''
+        Function that compares the hugoniot locus and integral curve solution for a
+        initial state U = (rho, m)
+
+        input:
+        - U (2-tuple): 
+        - title (str): title for the plot
+        - rho_lim (list of 2): set limits on rho array
+        - v_lim (list of 2): constrain the y-axis
+        - name (str): set name for the saved figure
+        '''
+
+        fig, ax = plt.subplots(1,1, figsize=(8,6))
+
+        # create rho array
+        if rho_lim != None:
+            rho = np.linspace(rho_lim[0], rho_lim[1], 500)
+        else: 
+            rho = np.linspace(0.04, 2, 500)
+        
+        # get Hugoniot locus
+        m = self.riemann.hugoniot_locus(U, rho)
+        m_pos = m[0]
+        m_neg = m[1]
+
+        # get integral curves
+        m_1 = self.riemann.integral_curve(U, rho, wave_type='1-rarefaction')
+        m_2 = self.riemann.integral_curve(U, rho, wave_type='2-rarefaction')
+
+        # plot the curves
+        ax.plot(rho, m_pos, linestyle='--', label='Hugoniot locus (pos)')
+        ax.plot(rho, m_neg, linestyle='--', label='Hugoniot locus (neg)')
+
+        ax.plot(rho, m_1, linestyle=':', label='1-rarefaction')
+        ax.plot(rho, m_2, linestyle=':', label='2-rarefaction')
+
+        # Plot initial state
+        ax.scatter(U[0], U[1], s=70, label='Initial state', markersize='*')
+
+        # Make nice plot
+        ax.legend()
+        ax.set_title(title, fontsize=16)
+        ax.set_xlabel(r'Mass density $\rho$', fontsize=13)
+        ax.set_ylabel(r'Momentum $m$', fontsize=13)
+
+        name_fig = 'Plots/'+name+'.png'
+        fig.savefig(name_fig, dpi=300)
+        plt.show()
+
