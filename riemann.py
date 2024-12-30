@@ -77,7 +77,7 @@ class riemann:
         else:
             v_hat = U[1]/U[0]
             der_pos = v_hat + self.c_s
-            der_neg = v_hat - self_c_s
+            der_neg = v_hat - self.c_s
             return np.array([der_pos, der_neg])
         
 

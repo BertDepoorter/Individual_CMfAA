@@ -98,7 +98,11 @@ class plotting:
         fig.savefig(name_fig, dpi=300)
         plt.show()
 
-    def plot_Hugoniot_locus_derivative(self, U, rho_lim=None, v_lim=None, name='Hugoniot_locus', title='Hugoniot locus'):
+    def plot_Hugoniot_locus_derivative(self, U, 
+                                       rho_lim=None, 
+                                       v_lim=None, 
+                                       name='Hugoniot_locus_derivative', 
+                                       title='Hugoniot locus with derivatives'):
         '''
         Exercise 4.3: function for plotting the solutions to the equations
         governing the Hugoniot locus.
@@ -127,7 +131,7 @@ class plotting:
         m_neg = m[1]
 
         # get derivative
-        derivatives = riemann.Hugoniot_derivative(U)
+        derivatives = self.riemann.Hugoniot_derivative(U)
         line_1 = (rho-U[0])*derivatives[0] + U[1]
         line_2 = (rho-U[0])*derivatives[1] + U[1]
 
@@ -138,8 +142,8 @@ class plotting:
         if v_lim != None:  
             ax.set_ylim(v_lim)
 
-        ax.plot(rho, line_1, linestyle='dashed', color='gray', alpha=0.6, lavel='Derivative (pos)')
-        ax.plot(rho, line_2, linestyle='dashed', color='black', alpha=0.6, lavel='Derivative (neg)')
+        ax.plot(rho, line_1, linestyle='dashed', color='gray', alpha=0.6, label='Derivative (pos)')
+        ax.plot(rho, line_2, linestyle='dashed', color='black', alpha=0.6, label='Derivative (neg)')
         ax.set_xlabel(r'Mass density $\rho$', fontsize=13)
         ax.set_ylabel(r"Momentum $m$", fontsize=13)
         ax.set_title(title, fontsize=17)
