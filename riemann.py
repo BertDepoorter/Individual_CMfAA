@@ -61,7 +61,27 @@ class riemann:
         m_neg = rho_range/rho_hat*m_hat - np.sqrt(rho_range/rho_hat)*self.c_s*(rho_range-rho_hat)
 
         return np.array([m_pos, m_neg])
-    
+
+    def Hugoniot_derivative(self, U):
+        '''
+        Calculate slope of derivatives to the Hugoniot curves
+
+        input:
+        - U (array): contains the state of which we want to calculate local derivatives
+
+        output:
+        - array: containing two derivatives
+        '''
+        if U[0] == 0.0:
+            return ValueError("Derivative cannot be calcuated when density is zero.")
+        else:
+            v_hat = U[1]/U[0]
+            der_pos = v_hat + self.c_s
+            der_neg = v_hat - self_c_s
+            return np.array([der_pos, der_neg])
+        
+
+            
     def integral_curve(self, U, rho_range, wave_type):
         '''
         Compute integral curves (rarefactions) for given state U
@@ -221,10 +241,11 @@ class riemann:
             slope_R = U[i+1] - U[i]
             limited_slope = self.limit_slope(slope_L, slope_R, limiter)
 
+            U_L = U[i]+limited_slope/2
+            U_R = U[i+1] - limited_slope/2
+            
             # Do the actual flux computation
             if method == 'tvdlf':
-                U_L = U[i]+limited_slope/2
-                U_R = U[i+1] - limited_slope/2
                 # compute max speed
                 max_speed = max(abs(U_L[1]/U_L[0])+self.c_s,
                                  abs(U_R[1]/U_R[0])+self.c_s)
