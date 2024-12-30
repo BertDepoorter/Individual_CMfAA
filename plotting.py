@@ -98,6 +98,57 @@ class plotting:
         fig.savefig(name_fig, dpi=300)
         plt.show()
 
+    def plot_Hugoniot_locus_derivative(self, U, rho_lim=None, v_lim=None, name='Hugoniot_locus', title='Hugoniot locus'):
+        '''
+        Exercise 4.3: function for plotting the solutions to the equations
+        governing the Hugoniot locus.
+
+        input:
+        - U_hat (2-tuple): contains state U hat
+        (optional)
+        - rho_lim (list): set limit of the rho array
+        - m_lim (list): constrain the y-axis limit
+
+        output:
+        - figure shown as output
+
+        '''
+
+        # create range of rho
+        if rho_lim != None:
+            if type(rho_lim).__name__ != 'list':
+                raise ValueError
+            rho = np.linspace(rho_lim[0], rho_lim[1], 500)
+        rho = np.linspace(0, 2, 500)
+
+        # get solution
+        m = self.riemann.hugoniot_locus(U, rho)
+        m_pos = m[0]
+        m_neg = m[1]
+
+        # get derivative
+        derivatives = riemann.Hugoniot_derivative(U)
+        line_1 = (rho-U[0])*derivatives[0] + U[1]
+        line_2 = (rho-U[0])*derivatives[1] + U[1]
+
+        fig, ax = plt.subplots(1,1)
+        ax.plot(rho, m_pos, color='blue', label='Positive solution')
+        ax.plot(rho, m_neg, color='orange', label='Negative solution')
+        ax.scatter(U[0], U[1], marker='*', s=70, label='Initial state')
+        if v_lim != None:  
+            ax.set_ylim(v_lim)
+
+        ax.plot(rho, line_1, linestyle='dashed', color='gray', alpha=0.6, lavel='Derivative (pos)')
+        ax.plot(rho, line_2, linestyle='dashed', color='black', alpha=0.6, lavel='Derivative (neg)')
+        ax.set_xlabel(r'Mass density $\rho$', fontsize=13)
+        ax.set_ylabel(r"Momentum $m$", fontsize=13)
+        ax.set_title(title, fontsize=17)
+        ax.legend()
+
+        name_fig = 'Plots/'+name+'.png'
+        fig.savefig(name_fig, dpi=300)
+        plt.show()
+
     def plot_integral_curves(self, U, rho_lim=None, v_lim=None, name='Integral_curves', title='Integral curves'):
         '''
         Plot the integral curves for a given state U = (rho, m)
