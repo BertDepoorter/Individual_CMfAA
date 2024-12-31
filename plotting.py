@@ -373,7 +373,6 @@ class plotting:
         '''
 
         # create rho array
-        m = self.riemann.hugoniot_locus(U, rho)
         if rho_lim != None:
             if type(rho_lim).__name__ != 'list':
                 raise ValueError
@@ -398,7 +397,7 @@ class plotting:
         ax[0].set_ylabel(r'Momentum $m$', fontsize=12)
 
         ax[1].plot(rho, s_pos, color='blue', label='Positive solution')
-        ax[1].plot(rho, s_neg, color='blue', label='Negative solution')
+        ax[1].plot(rho, s_neg, color='orange', label='Negative solution')
         ax[1].set_title('Hugoniot locus: shock speed', fontsize=15)
         ax[1].set_xlabel(r'Mass density $\rho$', fontsize=12)
         ax[1].set_ylabel(r'shock speed $s$', fontsize=12)

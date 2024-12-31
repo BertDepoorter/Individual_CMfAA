@@ -94,8 +94,8 @@ class riemann:
         '''
         rho_hat, m_hat = U[0], U[1]
 
-        s_positive = m_hat/rho-hat + np.sqrt(rho_range/rho_hat)*self.c_s
-        s_negative = m_hat/rho-hat + np.sqrt(rho_range/rho_hat)*self.c_s
+        s_positive = m_hat/rho_hat + np.sqrt(rho_range/rho_hat)*self.c_s
+        s_negative = m_hat/rho_hat - np.sqrt(rho_range/rho_hat)*self.c_s
 
         return np.array([s_positive, s_negative])
 
