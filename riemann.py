@@ -80,6 +80,25 @@ class riemann:
             der_neg = v_hat - self.c_s
             return np.array([der_pos, der_neg])
         
+    def shock_speed(self, U, rho_range):
+        '''
+        Function that returns the shock pseed of Rankine_hugoniot system
+
+        input: 
+        - U (array): contains an intial state, array has 2 elements
+        - rho_range (array): for which rho_values do we calculate shock speed
+
+        output:
+        - s (array): contains shock speed for each given rho_value
+            2-dimensional: there's positive and negative solution
+        '''
+        rho_hat, m_hat = U[0], U[1]
+
+        s_positive = m_hat/rho-hat + np.sqrt(rho_range/rho_hat)*self.c_s
+        s_negative = m_hat/rho-hat + np.sqrt(rho_range/rho_hat)*self.c_s
+
+        return np.array([s_positive, s_negative])
+
 
             
     def integral_curve(self, U, rho_range, wave_type):

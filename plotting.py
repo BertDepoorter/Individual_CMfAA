@@ -342,7 +342,7 @@ class plotting:
         }
 
         x, rho, momentum = self.riemann.solve_riemann_problem(**params)
-        
+
         fig, ax = plt.subplots(1, 1, figsize=(8,6))
         ax.plot(rho, momentum, color='blue', label='Numerical solution')
 
@@ -353,4 +353,57 @@ class plotting:
         name_file = 'Plots/'+name+'.png'
         fig.savefig(name_file, dpi=300)
 
+        plt.show()
+
+    def Plot_Rankine_hugoniot(self, U, 
+                              rho_lim=None,
+                              title='Rankine-Hugoniot solution', 
+                              name='Plot_Rankine_hugoniot'):
+        '''
+        Function that creates a plot of the 1-parameter solution to the Rankine-Hugoniot system. 
+        The first plot shows the positive and negative solution for the momentum, 
+        the second one shows the solution for shock speed. 
+
+        input:
+        - U (array): contains rho_hat and m_hat, the initial state
+        (optional)
+        - rho_range (2-tuple/array): contains limits on rho-axis
+        - title (str): title for the plot
+        - name (str): name for the saved figure
+        '''
+
+        # create rho array
+        m = self.riemann.hugoniot_locus(U, rho)
+        if rho_lim != None:
+            if type(rho_lim).__name__ != 'list':
+                raise ValueError
+            rho = np.linspace(rho_lim[0], rho_lim[1], 500)
+        rho = np.linspace(0, 2, 500)
+
+        # get solutions
+        m = self.riemann.hugoniot_locus(U, rho)
+        m_pos = m[0]
+        m_neg = m[1]
+
+        s = self.riemann.shock_speed(U, rho)
+        s_pos = s[0]
+        s_neg = s[1]
+
+        fig, ax = plt.subplots(2,1, figsize=(8, 14))
+        ax[0].plot(rho, m_pos, color='blue', label='Positive solution')
+        ax[0].plot(rho, m_neg, color='orange', label='Negative solution')
+        ax[0].scatter(U[0], U[1], marker='*', s=70, label='Initial state')
+        ax[0].set_title('Hugoniot locus: momentum', fontsize=15)
+        ax[0].set_xlabel(r'Mass density $\rho$', fontsize=12)
+        ax[0].set_ylabel(r'Momentum $m$', fontsize=12)
+
+        ax[1].plot(rho, s_pos, color='blue', label='Positive solution')
+        ax[1].plot(rho, s_neg, color='blue', label='Negative solution')
+        ax[1].set_title('Hugoniot locus: shock speed', fontsize=15)
+        ax[1].set_xlabel(r'Mass density $\rho$', fontsize=12)
+        ax[1].set_ylabel(r'shock speed $s$', fontsize=12)
+        ax[0].legend(), ax[1].legend()
+
+        name_fig = 'Plots/'+name+'.png'
+        fig.savefig(name_fig, dpi=300)
         plt.show()
