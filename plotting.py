@@ -142,8 +142,11 @@ class plotting:
         if v_lim != None:  
             ax.set_ylim(v_lim)
 
+        # Plot derivatives
         ax.plot(rho, line_1, linestyle='dashed', color='gray', alpha=0.6, label='Derivative (pos)')
         ax.plot(rho, line_2, linestyle='dashed', color='black', alpha=0.6, label='Derivative (neg)')
+
+        # make nice plot
         ax.set_xlabel(r'Mass density $\rho$', fontsize=13)
         ax.set_ylabel(r"Momentum $m$", fontsize=13)
         ax.set_title(title, fontsize=17)
@@ -295,8 +298,59 @@ class plotting:
         ax[1].set_xlabel('x', fontsize=13)
         ax[1].set_ylabel(r'Momentum $m$', fontsize=13)
         ax[1].set_title('Final momentum profile', fontsize=16)
-
+        fig.suptitle(title, fontsize=18)
         ax[0].legend(), ax[1].legend()
         name_fig = 'Plots/'+name+'.png'
         fig.savefig(name_fig, dpi=300)
+        plt.show()
+
+    def plot_numerical_state_space(self, 
+                                   method, 
+                                   limiter,
+                                   timestepper,
+                                   t_end=2.0,
+                                   nx=100,
+                                   name='numerical_state_space',
+                                   title='Numerical solution in state space'
+                                ):
+        '''
+        Function that plots the numerical solution in state space, i.e . in the (rho, m) plane
+
+         input:
+        - method (str): flux scheme to use
+        - limiter (str): limit the slope reconstruction
+        - timestepper (str): how to do the time integration
+        (optional)
+        - t_end (float): for how long to run the simulation 
+            default is 2.0
+        - nx (int): number of spatial points
+            default is 100
+        - name (str): name of the saved figure
+            Default is 'final_state_density_momentum'
+        - title (str): title for the plot
+            default is 'Final state'
+
+        output: 
+        - figure (also saved in folder plots)
+        '''
+        params = {
+            'method': method,
+            'timestepper': timestepper,
+            'limiter': limiter,
+            't_end': t_end,
+            'nx': nx
+        }
+
+        x, rho, momentum = self.riemann.solve_riemann_problem(**params)
+        
+        fig, ax = plt.subplots(1, 1, figsize=(8,6))
+        ax.plot(rho, momentum, color='blue', label='Numerical solution')
+
+        ax.legend()
+        ax.set_title(title, fontsize=16)
+        ax.set_xlabel(r'Mass density $\rho$', fontsize=13)
+        ax.set_ylabel(r'Momentum $m$', fontsize=13)
+        name_file = 'Plots/'+name+'.png'
+        fig.savefig(name_file, dpi=300)
+
         plt.show()
