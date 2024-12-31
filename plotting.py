@@ -446,7 +446,7 @@ class plotting:
         line_2 = (rho-U[0])*derivatives[1] + U[1]
 
 
-        fig, ax = plt.subplots(2,1, figsize=(8, 14))
+        fig, ax = plt.subplots(2,1, figsize=(6, 10))
         ax[0].plot(rho, m_pos, color='blue', label='Positive solution')
         ax[0].plot(rho, m_neg, color='orange', label='Negative solution')
          # Plot derivatives
@@ -463,7 +463,8 @@ class plotting:
         ax[1].set_xlabel(r'Mass density $\rho$', fontsize=14)
         ax[1].set_ylabel(r'shock speed $s$', fontsize=14)
         ax[0].legend(), ax[1].legend()
-
+        fig.suptitle(title, fontsize=18)
+        plt.tight_layout()
         name_fig = 'Plots/'+name+'.png'
         fig.savefig(name_fig, dpi=300)
         plt.show()
