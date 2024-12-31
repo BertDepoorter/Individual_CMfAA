@@ -60,7 +60,7 @@ class plotting:
         governing the Hugoniot locus.
 
         input:
-        - U_hat (2-tuple): contains state U hat
+        - U_hat (2-tuple): contains state U hat = (rho_hat, m_hat)
         (optional)
         - rho_lim (list): set limit of the rho array
         - m_lim (list): constrain the y-axis limit
@@ -108,7 +108,7 @@ class plotting:
         governing the Hugoniot locus.
 
         input:
-        - U_hat (2-tuple): contains state U hat
+        - U_hat (2-tuple): contains state U hat = (rho_hat, m_hat)
         (optional)
         - rho_lim (list): set limit of the rho array
         - m_lim (list): constrain the y-axis limit
@@ -143,8 +143,8 @@ class plotting:
             ax.set_ylim(v_lim)
 
         # Plot derivatives
-        ax.plot(rho, line_1, linestyle='dashed', color='gray', alpha=0.6, label='Derivative (pos)')
-        ax.plot(rho, line_2, linestyle='dashed', color='black', alpha=0.6, label='Derivative (neg)')
+        ax.plot(rho, line_1, linestyle='dashed', color='blue', alpha=0.6, label='Derivative (pos)')
+        ax.plot(rho, line_2, linestyle='dashed', color='orange', alpha=0.6, label='Derivative (neg)')
 
         # make nice plot
         ax.set_xlabel(r'Mass density $\rho$', fontsize=13)
@@ -182,7 +182,7 @@ class plotting:
         fig, ax = plt.subplots(1, 1, figsize=(8,6))
         ax.plot(rho, m_1, linestyle='--', label='1-rarefaction')
         ax.plot(rho, m_2, linestyle='--', label='2-rarefaction')
-        ax.scatter(U[0], U[1]*U[0], s=70, marker='*', label='Initial state')
+        ax.scatter(U[0], U[1], s=70, marker='*', label='Initial state')
 
         ax.legend()
 
@@ -239,7 +239,7 @@ class plotting:
         ax.plot(rho, m_2, linestyle=':', label='2-rarefaction')
 
         # Plot initial state
-        ax.scatter(U[0], U[1]*U[0], s=70, label='Initial state', marker='*')
+        ax.scatter(U[0], U[1], s=70, label='Initial state', marker='*')
 
         # Make nice plot
         ax.legend()
@@ -401,6 +401,67 @@ class plotting:
         ax[1].set_title('Hugoniot locus: shock speed', fontsize=15)
         ax[1].set_xlabel(r'Mass density $\rho$', fontsize=12)
         ax[1].set_ylabel(r'shock speed $s$', fontsize=12)
+        ax[0].legend(), ax[1].legend()
+
+        name_fig = 'Plots/'+name+'.png'
+        fig.savefig(name_fig, dpi=300)
+        plt.show()
+
+    def Plot_Rankine_hugoniot_derivative(self, U, 
+                              rho_lim=None,
+                              title='Rankine-Hugoniot solution', 
+                              name='Plot_Rankine_hugoniot'):
+        '''
+        Function that creates a plot of the 1-parameter solution to the Rankine-Hugoniot system. 
+        The first plot shows the positive and negative solution for the momentum, 
+        the second one shows the solution for shock speed. 
+
+        input:
+        - U (array): contains rho_hat and m_hat, the initial state
+        (optional)
+        - rho_range (2-tuple/array): contains limits on rho-axis
+        - title (str): title for the plot
+        - name (str): name for the saved figure
+        '''
+
+        # create rho array
+        if rho_lim != None:
+            if type(rho_lim).__name__ != 'list':
+                raise ValueError
+            rho = np.linspace(rho_lim[0], rho_lim[1], 500)
+        rho = np.linspace(0, 2, 500)
+
+        # get solutions
+        m = self.riemann.hugoniot_locus(U, rho)
+        m_pos = m[0]
+        m_neg = m[1]
+
+        s = self.riemann.shock_speed(U, rho)
+        s_pos = s[0]
+        s_neg = s[1]
+
+        # get derivative
+        derivatives = self.riemann.Hugoniot_derivative(U)
+        line_1 = (rho-U[0])*derivatives[0] + U[1]
+        line_2 = (rho-U[0])*derivatives[1] + U[1]
+
+
+        fig, ax = plt.subplots(2,1, figsize=(8, 14))
+        ax[0].plot(rho, m_pos, color='blue', label='Positive solution')
+        ax[0].plot(rho, m_neg, color='orange', label='Negative solution')
+         # Plot derivatives
+        ax[0].plot(rho, line_1, linestyle='dashed', color='blue', alpha=0.6, label='Derivative (pos)')
+        ax[0].plot(rho, line_2, linestyle='dashed', color='orange', alpha=0.6, label='Derivative (neg)')
+        ax[0].scatter(U[0], U[1], marker='*', s=70, label='Initial state')
+        ax[0].set_title('Hugoniot locus: momentum', fontsize=15)
+        ax[0].set_xlabel(r'Mass density $\rho$', fontsize=14)
+        ax[0].set_ylabel(r'Momentum $m$', fontsize=14)
+
+        ax[1].plot(rho, s_pos, color='blue', label='Positive solution')
+        ax[1].plot(rho, s_neg, color='orange', label='Negative solution')
+        ax[1].set_title('Hugoniot locus: shock speed', fontsize=15)
+        ax[1].set_xlabel(r'Mass density $\rho$', fontsize=14)
+        ax[1].set_ylabel(r'shock speed $s$', fontsize=14)
         ax[0].legend(), ax[1].legend()
 
         name_fig = 'Plots/'+name+'.png'

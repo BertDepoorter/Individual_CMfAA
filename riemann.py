@@ -53,8 +53,7 @@ class riemann:
         output:
         - array containing the values for 2 diff Hugoniot curves
         '''
-        rho_hat, v_hat = U
-        m_hat = v_hat * rho_hat
+        rho_hat, m_hat = U
 
         # calculate hugoniot loci
         m_pos = rho_range/rho_hat*m_hat + np.sqrt(rho_range/rho_hat)*self.c_s*(rho_range-rho_hat)
@@ -114,8 +113,8 @@ class riemann:
         output:
         - array of (rho, v) values
         '''
-        rho_hat, v_hat = U
-        m_hat = v_hat*rho_hat
+        rho_hat, m_hat = U
+        v_hat = m_hat/rho_hat
 
         # check input type
         if (wave_type != '1-rarefaction') and (wave_type != '2-rarefaction'):
