@@ -553,18 +553,30 @@ class plotting:
         # Create Plot
         fig, ax = plt.subplots(1,1, figsize=(8,6))
                                
-                               # Plot the initial states
-        ax.scatter(U_L[0], U_R[1], label='Left initial state', marker='*', s=70)
+        # Plot the initial states
+        ax.scatter(U_L[0], U_L[1], label='Left initial state', marker='*', s=70)
         ax.scatter(U_R[0], U_R[1], label='Right initial state', s=70, marker='*')
 
         # create rho arrays (lower and higher density for both states)
+        L_lower = np.linspace(0, rho_L, 500)
+        L_higher = np.linspace(rho_L, 2, 500)
 
-        # get Hugoniot loci (lower and higher density separately)
+        R_lower = np.linspace(0, rho_L, 500)
+        R_higher = np.linspace(rho_L, 2, 500)
 
-        # get integral curves (lower and higher density separately)
+        # print decision tree solution
+        sol = self.riemann.solve_riemann()
+        print(sol)
 
-        # get intermediate state if appropriate
+        R1 = self.riemann.integral_curve(U_L, L_lower, '1-rarefaction')
+        R2 = self.riemann.integral_curve(U_R, R_lower, '2-rarefaction')
+        S1 = self.riemann.hugoniot_locus(U_L, L_higher)[1]
+        S2 = self.riemann.hugoniot_locus(U_R, R_higher)[0]
 
+        ax.plot(L_lower, R1, label='R1', linestyle='dashed')
+        ax.plot(L_higher, S1, label='S1')
+        ax.plot(R_lower, R2, label='R2', linestyle='dashed')
+        ax.plot(R_higher, S2, label='S2')
 
         ax.set_xlabel(r'Mass density $\rho$', fontsize=13)
         ax.set_ylabel(r'Momentum $m$', fontsize=13)
@@ -579,5 +591,5 @@ class plotting:
                          name='Full_solution_state_space',
                          title='Riemann Problem Solution in State Space'):
         '''
-        Plot the '''
+        Plot the solution in state space, as one of the 9 possibvi'''
         pass

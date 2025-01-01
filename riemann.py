@@ -351,11 +351,9 @@ class riemann:
             wave_2 = 'absent'
 
         # check degenerate cases
-        cond1 = self.integral_curve(U_L, rho_R, '1-rarefaction')[0] 
-        cond2 = self.integral_curve(U_L, rho_R, '1-rarefaction')[1] 
-
-        cond3 = self.integral_curve(U_R, rho_L, '2-rarefaction')[0] 
-        cond4 = self.integral_curve(U_R, rho_L, '2-rarefaction')[1] 
+        cond1 = self.integral_curve(U_L, rho_R, '1-rarefaction')
+        cond3 = self.integral_curve(U_R, rho_L, '2-rarefaction')
+  
         # R on Hugoniot locus of L
         if (self.hugoniot_locus(U_L, rho_R)[0] == rho_R*v_R) or (self.hugoniot_locus(U_L, rho_R)[0] == rho_R*v_R):
             wave_1 = 'shock'
@@ -363,7 +361,7 @@ class riemann:
 
         # R on integral curve of L
         
-        elif (cond1 == rho_R*v_R) or (cond2 == rho_R*v_R):
+        elif (cond1 == rho_R*v_R):
             wave_1 = 'rarefaction'
             wave_2 = 'absent'
 
@@ -373,7 +371,7 @@ class riemann:
             wave_2 = 'shock'
 
         # L on integral curve of R
-        elif (cond3 == rho_L*v_L) or (cond4 == rho_L*v_L):
+        elif (cond3 == rho_L*v_L):
             wave_1 = 'absent'
             wave_2 = 'rarefaction'
 
@@ -384,7 +382,7 @@ class riemann:
             if rho_R > rho_L:
                 if self.hugoniot_locus(U_L, rho_R)[1] < v_R*rho_R:
                     # get value of R2(U_R, rho_L)
-                    val = self.integral_curve(U_R, rho_L, '2-rarefaction')[0]
+                    val = self.integral_curve(U_R, rho_L, '2-rarefaction')
                     if rho_L*v_L > val:
                         # intersects R1
                         wave_1 = 'rarefaction'
@@ -396,7 +394,7 @@ class riemann:
                     wave_1 = 'shock'
                     wave_2 = 'shock'
             else: 
-                if self.integral_curve(U_L, rho_R)[1] > v_R*rho_R:
+                if self.integral_curve(U_L, rho_R, '1-rarefaction') > v_R*rho_R:
                     # get value of R2(U_R, rho_L)
                     val = self.hugoniot_locus(U_R, rho_L)[0]
                     if rho_L*v_L > val:
