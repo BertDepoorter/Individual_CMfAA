@@ -468,3 +468,48 @@ class plotting:
         name_fig = 'Plots/'+name+'.png'
         fig.savefig(name_fig, dpi=300)
         plt.show()
+
+    def plot_2_hugoniot_loci(self, U_l, U_r, 
+                             rho_range=None, 
+                             name='plot_2_hugoniot_loci', 
+                             title=" Hugoniot locus for left and right states"):
+        '''
+        Plot the hugoniot locus for 2 different states U_l and U_r on the same plot
+
+        input:
+        - U_l (array): array of left state
+        - U_r (array): array of right state
+        (optional)
+        - rho_range(array): array with endpoints of self-specified rho range
+        - name (str): name for saved figure
+        - title (str): title for the figure
+
+        output
+        - figure with two Hugoniot loci
+        '''
+        # create rho array
+        if rho_range != None:
+            rho = np.linspace(rho_range[0], rho_range[1], 500)
+        else:
+            rho = np.linspace(0, 2, 500)
+
+        # get solutions
+        m_l = self.riemann.hugoniot_locus(U_l, rho)
+        m_r = self.riemann.hugoniot_locus(U_r, rho)
+
+        fig, ax = plt.subplots(1,1, figsize=(8,6))
+        ax.plot(rho, m_l[0], color='blue', label='Left state: positive')
+        ax.plot(rho, m_r[0], linestyle='dashed', color='blue', label='Right state: positive')
+        ax.plot(rho, m_l[1], color='orange', label='Left state: negative')
+        ax.plot(rho, m_r[1], linestyle='dashed', color='orange', label='Right state: negative')
+        ax.scatter(U_l[0], U_l[1], label='Initial left state', s=70, marker='*')
+        ax.scatter(U_r[0], U_r[1], label='Initial right state', s=70, marker='*')
+
+        ax.legend()
+        ax.set_title(title, fontsize=17)
+        ax.set_xlabel(r'Mass density $\rho$', fontsize=13)
+        ax.set_ylabel(r'Momentum $m$', fontsize=13)
+
+        name_fig = 'Plots/'+name+'.png'
+        fig.savefig(name_fig, dpi=300)
+        plt.show()
