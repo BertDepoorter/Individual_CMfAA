@@ -288,5 +288,30 @@ class riemann:
             U_new[i] -= dt/dx *(F_half[i]-F_half[i-1])
         return U_new
     
-    
+
+    def get_intermediat_state(self, U_L, U_R):
+        '''
+        Function that calculates the intermediate state, connected through allowed 
+        shocks to the left and right states
+
+        input:
+        - U_L (array): the left state
+        - U_R (array): the right state
+
+        output: 
+        - U_M (array): the intermediate state
+        '''
+        rho_L, m_L = U_L[0], U_L[1]
+        rho_R, m_R = U_R[0], U_R[1]
+
+        # intermediate quantities
+        rho_reduced = np.sqrt(rho_L*rho_R)/(np.sqrt(rho_L)+ np.sqrt(rho_R))
+        v_diff = (m_L/rho_L - m_R/rho_R)/self.c_s
+
+
+        # get inetrmediate solutions
+        rho_m =  ( 0.5*v_diff*rho_reduced + 1/2*np.sqrt(v_diff**2 * rho_reduced**2 + 4*np.sqrt(rho_L*rho_R)))** 2
+        rho_inter = (np.sqrt(rho_m)+ np.sqrt(rho_L*rho_R/rho_m))
+        v_m = (m_L/rho_L- m_R/rho_R)/2 + self.c_s* (np.sqrt(rho_L) - np.sqrt(rho_R))/np.sqrt(rho_R*rho_L) * rho_inter
+        return np.array([rho_m, v_m*rho_m])
     

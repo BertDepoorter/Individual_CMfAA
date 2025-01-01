@@ -471,6 +471,7 @@ class plotting:
 
     def plot_2_hugoniot_loci(self, U_l, U_r, 
                              rho_range=None, 
+                             intermediate=False,
                              name='plot_2_hugoniot_loci', 
                              title=" Hugoniot locus for left and right states"):
         '''
@@ -481,6 +482,9 @@ class plotting:
         - U_r (array): array of right state
         (optional)
         - rho_range(array): array with endpoints of self-specified rho range
+            default is none
+        - intermediate (bool): calculate intermediate state U_m if allowed
+            default is False 
         - name (str): name for saved figure
         - title (str): title for the figure
 
@@ -502,8 +506,14 @@ class plotting:
         ax.plot(rho, m_r[0], linestyle='dashed', color='blue', label='Right state: positive')
         ax.plot(rho, m_l[1], color='orange', label='Left state: negative')
         ax.plot(rho, m_r[1], linestyle='dashed', color='orange', label='Right state: negative')
+
         ax.scatter(U_l[0], U_l[1], label='Initial left state', s=70, marker='*')
         ax.scatter(U_r[0], U_r[1], label='Initial right state', s=70, marker='*')
+
+        # get intermediate state
+        if intermediate == True:
+            U_m = self.riemann.get_intermediat_state(U_l, U_r)
+            ax.scatter(U_m[0], U_m[1], label='Intermediate state', s=80, marker='*', color='red')
 
         ax.annotate(r"U_L", (U_l[0], 1.2*U_l[1]))
         ax.annotate(r"U_R", (U_r[0], 1.1*U_r[1]+0.25))
