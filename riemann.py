@@ -315,3 +315,20 @@ class riemann:
         v_m = (m_L/rho_L- m_R/rho_R)/2 + self.c_s* (np.sqrt(rho_L) - np.sqrt(rho_R))/np.sqrt(rho_R*rho_L) * rho_inter
         return np.array([rho_m, v_m*rho_m])
     
+
+    def solve_riemann(self):
+        '''
+        Function that solves the riemann problem for 1D oisothermal hydro based on 
+        Hugoniot loci and integral curves. 
+
+        input:
+        - none: we use left and righ state given with class initialization. 
+
+        output: 
+        dictionary describing the final solution
+        '''
+
+        sol = {}
+        
+        # Lax entropy condition
+        

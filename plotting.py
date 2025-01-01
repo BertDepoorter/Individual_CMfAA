@@ -526,3 +526,51 @@ class plotting:
         name_fig = 'Plots/'+name+'.png'
         fig.savefig(name_fig, dpi=300)
         plt.show()
+
+    def full_solution(self,
+                      name='Full_solution_state_space',
+                      title='Riemann Problem Solution in State Space'):
+        '''
+        Function that plots the final state space solution to the Riemann problem. 
+        Integral curves and Hugoniot loci are plotted, with the actual solution emphasized in bold.
+
+        input: 
+        - name (str): name for saved figure
+        - title (str): title for the plot. 
+
+        output:
+        - Full state space solution figure
+        '''
+        rho_L = self.rho_L
+        rho_R = self.rho_R
+
+        m_L = self.v_L*self.rho_L
+        m_R = self.v_R*self.rho_R
+
+        U_L = np.array([rho_L, m_L])
+        U_R = np.array([rho_R, m_R])
+
+        # Create Plot
+        fig, ax = plt.subplots(1,1, figsize=(8,6))
+                               
+                               # Plot the initial states
+        ax.scatter(U_L[0], U_R[1], label='Left initial state', marker='*', s=70)
+        ax.scatter(U_R[0], U_R[1], label='Right initial state', s=70, marker='*')
+
+        # create rho arrays (lower and higher density for both states)
+
+        # get Hugoniot loci (lower and higher density separately)
+
+        # get integral curves (lower and higher density separately)
+
+        # get intermediate state if appropriate
+
+
+        ax.set_xlabel(r'Mass density $\rho$', fontsize=13)
+        ax.set_ylabel(r'Momentum $m$', fontsize=13)
+        ax.set_title(title, fontsize=17)
+        ax.legend()
+
+        name_fig = 'Plots/'+name+'.png'
+        fig.savefig(name_fig, dpi=300)
+        plt.show()
