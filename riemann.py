@@ -331,4 +331,42 @@ class riemann:
         sol = {}
         
         # Lax entropy condition
-        
+    
+
+    def get_lambda(self, U):
+        '''
+        function that calculates the eigenvalues of F_U for given state
+
+        input:
+        - U (array): given state vector
+
+        output: 
+        - eigenvalue array [lambda 1, lambda 2]
+        '''
+        lambda_1 = U[1]/U[0] + self.c_s
+        lambda_2 = U[1]/U[0] - self.c_s
+
+        return np.array([lambda_1, lambda_2])
+    
+    def rarefaction_exact_intermediate(self):
+        '''
+        Function that calculates the exact solution when intermediate state is
+        connected to left and right state via rarefaction waves
+
+        input:
+        - none
+
+        output: 
+        - state vector U
+        '''
+
+        rho_L = self.rho_L
+        v_L = self.v_L
+        rho_R = self.rho_R
+        v_R = self.v_R
+
+        rho_m = np.sqrt(rho_L* rho_R)*np.exp((v_L-v_R)/2/self.c_s)
+        v_m = (v_L + v_R)/2 + self.c_s/2* np.log(rho_L/rho_R)
+        return np.array([rho_m, v_m * rho_m])
+    
+    
