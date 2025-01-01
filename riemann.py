@@ -327,10 +327,94 @@ class riemann:
         output: 
         dictionary describing the final solution
         '''
-
         sol = {}
+        rho_L = self.rho_L
+        rho_R = self.rho_R
+
+        v_L = self.v_L
+        v_R = self.v_R
+
+        U_L = np.array([rho_L, rho_L*v_L])
+        U_R = np.array([rho_R, rho_R*v_R])
+
+        lam_L = self.get_lambda([rho_L, rho_L*v_L])
+        lam1_L = lam_L[0]
+        lam1_L = lam_L[1]
+
+        lam_R = self.get_lambda([rho_R, rho_R*v_R])
+        lam1_R = lam_R[0]
+        lam1_R = lam_R[1]
+
+        # check trivial case
+        if (rho_L == rho_R) and (v_L == v_R):
+            wave_1 = 'absent'
+            wave_2 = 'absent'
+
+        # check degenerate cases
+        cond1 = self.integral_curve(U_L, rho_R, '1-rarefaction')[0] 
+        cond2 = self.integral_curve(U_L, rho_R, '1-rarefaction')[1] 
+
+        cond3 = self.integral_curve(U_R, rho_L, '2-rarefaction')[0] 
+        cond4 = self.integral_curve(U_R, rho_L, '2-rarefaction')[1] 
+        # R on Hugoniot locus of L
+        if (self.hugoniot_locus(U_L, rho_R)[0] == rho_R*v_R) or (self.hugoniot_locus(U_L, rho_R)[0] == rho_R*v_R):
+            wave_1 = 'shock'
+            wave_2 = 'absent'
+
+        # R on integral curve of L
         
-        # Lax entropy condition
+        elif (cond1 == rho_R*v_R) or (cond2 == rho_R*v_R):
+            wave_1 = 'rarefaction'
+            wave_2 = 'absent'
+
+        # L on Hugoniot locus of R
+        elif (self.hugoniot_locus(U_R, rho_L)[0] == rho_L*v_L) or (self.hugoniot_locus(U_R, rho_L)[0] == rho_L*v_L):
+            wave_1 = 'absent'
+            wave_2 = 'shock'
+
+        # L on integral curve of R
+        elif (cond3 == rho_L*v_L) or (cond4 == rho_L*v_L):
+            wave_1 = 'absent'
+            wave_2 = 'rarefaction'
+
+        # check generic cases
+        
+        #check whether R lies above or below R1 / S1 curve
+        else:
+            if rho_R > rho_L:
+                if self.hugoniot_locus(U_L, rho_R)[1] < v_R*rho_R:
+                    # get value of R2(U_R, rho_L)
+                    val = self.integral_curve(U_R, rho_L, '2-rarefaction')[0]
+                    if rho_L*v_L > val:
+                        # intersects R1
+                        wave_1 = 'rarefaction'
+                        wave_2 = 'rarefaction'
+                    else:
+                        wave_1 = 'shock'
+                        wave_2 = 'rarefaction'
+                else:
+                    wave_1 = 'shock'
+                    wave_2 = 'shock'
+            else: 
+                if self.integral_curve(U_L, rho_R)[1] > v_R*rho_R:
+                    # get value of R2(U_R, rho_L)
+                    val = self.hugoniot_locus(U_R, rho_L)[0]
+                    if rho_L*v_L > val:
+                        # intersects R1
+                        wave_1 = 'shock'
+                        wave_2 = 'shock'
+                    else:
+                        wave_1 = 'rarefaction'
+                        wave_2 = 'shock'
+                else:
+                    wave_1 = 'rarefaction'
+                    wave_2 = 'rarefaction'
+
+
+        # return solution  as dictionary
+        sol['1-wave'] = wave_1
+        sol['2-wave'] = wave_2
+        return sol
     
 
     def get_lambda(self, U):

@@ -574,3 +574,10 @@ class plotting:
         name_fig = 'Plots/'+name+'.png'
         fig.savefig(name_fig, dpi=300)
         plt.show()
+
+    def plot_state_space(self,
+                         name='Full_solution_state_space',
+                         title='Riemann Problem Solution in State Space'):
+        '''
+        Plot the '''
+        pass
