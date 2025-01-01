@@ -505,6 +505,9 @@ class plotting:
         ax.scatter(U_l[0], U_l[1], label='Initial left state', s=70, marker='*')
         ax.scatter(U_r[0], U_r[1], label='Initial right state', s=70, marker='*')
 
+        ax.annotate(r"U_L", (U_l[0], 1.2*U_l[1]))
+        ax.annotate(r"U_R", (U_r[0], 1.1*U_r[1]+0.25))
+
         ax.legend()
         ax.set_title(title, fontsize=17)
         ax.set_xlabel(r'Mass density $\rho$', fontsize=13)
