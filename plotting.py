@@ -258,7 +258,8 @@ class plotting:
                                 t_end=2.0,
                                 nx=100,
                                 name='Final_state_density_momentum', 
-                                title='Final state'
+                                title='Final state',
+                                plot_momentum=False
                                 ):
         '''
         This is a function that plots the final result for density and momentum after numericallly solving Riemann problem. 
@@ -276,6 +277,8 @@ class plotting:
             Default is 'final_state_density_momentum'
         - title (str): title for the plot
             default is 'Final state'
+        - plot_momentum (bool): plot momentum or not
+            default is False
         '''
         params = {
             'method': method,
@@ -286,23 +289,36 @@ class plotting:
         }
 
         x, rho, momentum = self.riemann.solve_riemann_problem(**params)
-
-        fig, ax = plt.subplots(2, 1, figsize=(8, 14))
+        if plot_momentum  == True:
+            fig, ax = plt.subplots(2, 1, figsize=(8, 14))
         
-        ax[0].plot(x, rho, label=r'density $\rho$')
-        ax[0].set_xlabel('x', fontsize=13)
-        ax[0].set_ylabel(r'density $\rho$', fontsize=13)
-        ax[0].set_title('Final density profile', fontsize=16)
+            ax[0].plot(x, rho, label=r'density $\rho$')
+            ax[0].set_xlabel('x', fontsize=13)
+            ax[0].set_ylabel(r'density $\rho$', fontsize=13)
+            ax[0].set_title('Final density profile', fontsize=16)
+            
+            ax[1].plot(x, momentum, color='orange', label=r'Momentum $m$')
+            ax[1].set_xlabel('x', fontsize=13)
+            ax[1].set_ylabel(r'Momentum $m$', fontsize=13)
+            ax[1].set_title('Final momentum profile', fontsize=16)
+            fig.suptitle(title, fontsize=18)
+            ax[0].legend(), ax[1].legend()
+            name_fig = 'Plots/'+name+'.png'
+            fig.savefig(name_fig, dpi=300)
+            plt.show()
+        else:
+            fig, ax = plt.subplots(1, 1, figsize=(8, 6))
         
-        ax[1].plot(x, momentum, color='orange', label=r'Momentum $m$')
-        ax[1].set_xlabel('x', fontsize=13)
-        ax[1].set_ylabel(r'Momentum $m$', fontsize=13)
-        ax[1].set_title('Final momentum profile', fontsize=16)
-        fig.suptitle(title, fontsize=18)
-        ax[0].legend(), ax[1].legend()
-        name_fig = 'Plots/'+name+'.png'
-        fig.savefig(name_fig, dpi=300)
-        plt.show()
+            ax.plot(x, rho, label=r'density $\rho$')
+            ax.set_xlabel('x', fontsize=13)
+            ax.set_ylabel(r'density $\rho$', fontsize=13)
+            ax.set_title('Final density profile', fontsize=16)
+        
+            fig.suptitle(title, fontsize=18)
+            ax.legend()
+            name_fig = 'Plots/'+name+'.png'
+            fig.savefig(name_fig, dpi=300)
+            plt.show()
 
     def plot_numerical_state_space(self, 
                                    method, 
