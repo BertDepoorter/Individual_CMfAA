@@ -232,8 +232,8 @@ class plotting:
         m_2 = self.riemann.integral_curve(U, rho, wave_type='2-rarefaction')
 
         # plot the curves
-        ax.plot(rho, m_pos, linestyle='--', label='Hugoniot locus (pos)')
-        ax.plot(rho, m_neg, linestyle='--', label='Hugoniot locus (neg)')
+        ax.plot(rho, m_pos, label='Hugoniot locus (pos)')
+        ax.plot(rho, m_neg, label='Hugoniot locus (neg)')
 
         ax.plot(rho, m_1, linestyle=':', label='1-rarefaction')
         ax.plot(rho, m_2, linestyle=':', label='2-rarefaction')
@@ -558,25 +558,34 @@ class plotting:
         ax.scatter(U_R[0], U_R[1], label='Right initial state', s=70, marker='*')
 
         # create rho arrays (lower and higher density for both states)
-        L_lower = np.linspace(0, rho_L, 500)
+        L_lower = np.linspace(0.04, rho_L, 500)
         L_higher = np.linspace(rho_L, 2, 500)
 
-        R_lower = np.linspace(0, rho_L, 500)
-        R_higher = np.linspace(rho_L, 2, 500)
+        R_lower = np.linspace(0.04, rho_R, 500)
+        R_higher = np.linspace(rho_R, 2, 500)
 
         # print decision tree solution
         sol = self.riemann.solve_riemann()
         print(sol)
+
+        if sol['1-wave'] == 'shock' and (sol['2-wave']== 'shock'):
+            # get intermediate state for 2 shocks
+            U_m = self.riemann.get_intermediat_state(U_L, U_R)
+            ax.scatter(U_m[0], U_m[1], s=70, marker='*', color='red', label='Intermediate state')
+        if sol['1-wave'] == 'rarefaction' and (sol['2-wave']== 'rarefaction'):
+            # get intermediate state for 2 shocks
+            U_m = self.riemann.rarefaction_exact_intermediate()
+            ax.scatter(U_m[0], U_m[1], s=70, marker='*', color='red', label='Intermediate state')
 
         R1 = self.riemann.integral_curve(U_L, L_lower, '1-rarefaction')
         R2 = self.riemann.integral_curve(U_R, R_lower, '2-rarefaction')
         S1 = self.riemann.hugoniot_locus(U_L, L_higher)[1]
         S2 = self.riemann.hugoniot_locus(U_R, R_higher)[0]
 
-        ax.plot(L_lower, R1, label='R1', linestyle='dashed')
-        ax.plot(L_higher, S1, label='S1')
-        ax.plot(R_lower, R2, label='R2', linestyle='dashed')
-        ax.plot(R_higher, S2, label='S2')
+        ax.plot(L_lower, R1, color='blue', label='R1', linestyle='dashed')
+        ax.plot(L_higher, S1, color='blue', label='S1')
+        ax.plot(R_lower, R2, color='orange', label='R2', linestyle='dashed')
+        ax.plot(R_higher, S2, color='orange', label='S2')
 
         ax.set_xlabel(r'Mass density $\rho$', fontsize=13)
         ax.set_ylabel(r'Momentum $m$', fontsize=13)
@@ -588,8 +597,17 @@ class plotting:
         plt.show()
 
     def plot_state_space(self,
-                         name='Full_solution_state_space',
-                         title='Riemann Problem Solution in State Space'):
+                         name='Full_solution_spacetime',
+                         title='Riemann Problem Solution in Spacetime'):
         '''
-        Plot the solution in state space, as one of the 9 possibvi'''
-        pass
+        plot space-time diagram by using the solution found in 
+        input: 
+        - name (str): name for saved file
+        - title (str): title for the plot
+        '''
+        fig, ax = plt.subplots(1,1)
+
+        sol = self.riemann.solve_riemann()
+        if sol['1-wave'] != 'absent':
+            if sol['1-wave'] == 'rarefaction':
+                ax.plot()
