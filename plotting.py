@@ -611,19 +611,3 @@ class plotting:
         name_fig = 'Plots/'+name+'.png'
         fig.savefig(name_fig, dpi=300)
         plt.show()
-
-    def plot_state_space(self,
-                         name='Full_solution_spacetime',
-                         title='Riemann Problem Solution in Spacetime'):
-        '''
-        plot space-time diagram by using the solution found in 
-        input: 
-        - name (str): name for saved file
-        - title (str): title for the plot
-        '''
-        fig, ax = plt.subplots(1,1)
-
-        sol = self.riemann.solve_riemann()
-        if sol['1-wave'] != 'absent':
-            if sol['1-wave'] == 'rarefaction':
-                ax.plot()
