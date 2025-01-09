@@ -543,7 +543,8 @@ class plotting:
 
     def full_solution(self,
                       name='Full_solution_state_space',
-                      title='Riemann Problem Solution in State Space'):
+                      title='Riemann Problem Solution in State Space',
+                      figure=True):
         '''
         Function that plots the final state space solution to the Riemann problem. 
         Integral curves and Hugoniot loci are plotted, with the actual solution emphasized in bold.
@@ -551,7 +552,8 @@ class plotting:
         input: 
         - name (str): name for saved figure
         - title (str): title for the plot. 
-
+        (optional)
+        - figure (bool): indicate whether or not to create & plot a figure
         output:
         - Full state space solution figure
         '''
@@ -564,48 +566,55 @@ class plotting:
         U_L = np.array([rho_L, m_L])
         U_R = np.array([rho_R, m_R])
 
-        # Create Plot
-        fig, ax = plt.subplots(1,1, figsize=(8,6))
-                               
-        # Plot the initial states
-        ax.scatter(U_L[0], U_L[1], label='Left initial state', marker='*', s=70)
-        ax.scatter(U_R[0], U_R[1], label='Right initial state', s=70, marker='*')
+        if figure == True:
+            # Create Plot
+            fig, ax = plt.subplots(1,1, figsize=(8,6))
+                                
+            # Plot the initial states
+            ax.scatter(U_L[0], U_L[1], label='Left initial state', marker='*', s=70)
+            ax.scatter(U_R[0], U_R[1], label='Right initial state', s=70, marker='*')
 
-        # create rho arrays (lower and higher density for both states)
-        L_lower = np.linspace(0.04, rho_L, 500)
-        L_higher = np.linspace(rho_L, 2, 500)
+            # create rho arrays (lower and higher density for both states)
+            L_lower = np.linspace(0.04, rho_L, 500)
+            L_higher = np.linspace(rho_L, 2, 500)
 
-        R_lower = np.linspace(0.04, rho_R, 500)
-        R_higher = np.linspace(rho_R, 2, 500)
+            R_lower = np.linspace(0.04, rho_R, 500)
+            R_higher = np.linspace(rho_R, 2, 500)
 
-        # print decision tree solution
-        sol = self.riemann.solve_riemann()
-        print(sol)
+            # print decision tree solution
+            sol = self.riemann.solve_riemann()
+            print(sol)
 
-        if sol['1-wave'] == 'shock' and (sol['2-wave']== 'shock'):
-            # get intermediate state for 2 shocks
-            U_m = self.riemann.get_intermediat_state(U_L, U_R)
-            ax.scatter(U_m[0], U_m[1], s=70, marker='*', color='red', label='Intermediate state')
-        if sol['1-wave'] == 'rarefaction' and (sol['2-wave']== 'rarefaction'):
-            # get intermediate state for 2 shocks
-            U_m = self.riemann.rarefaction_exact_intermediate()
-            ax.scatter(U_m[0], U_m[1], s=70, marker='*', color='red', label='Intermediate state')
+            if sol['1-wave'] == 'shock' and (sol['2-wave']== 'shock'):
+                # get intermediate state for 2 shocks
+                U_m = self.riemann.get_intermediat_state(U_L, U_R)
+                ax.scatter(U_m[0], U_m[1], s=70, marker='*', color='red', label='Intermediate state')
+            if sol['1-wave'] == 'rarefaction' and (sol['2-wave']== 'rarefaction'):
+                # get intermediate state for 2 shocks
+                U_m = self.riemann.rarefaction_exact_intermediate()
+                ax.scatter(U_m[0], U_m[1], s=70, marker='*', color='red', label='Intermediate state')
 
-        R1 = self.riemann.integral_curve(U_L, L_lower, '1-rarefaction')
-        R2 = self.riemann.integral_curve(U_R, R_lower, '2-rarefaction')
-        S1 = self.riemann.hugoniot_locus(U_L, L_higher)[1]
-        S2 = self.riemann.hugoniot_locus(U_R, R_higher)[0]
+            R1 = self.riemann.integral_curve(U_L, L_lower, '1-rarefaction')
+            R2 = self.riemann.integral_curve(U_R, R_lower, '2-rarefaction')
+            S1 = self.riemann.hugoniot_locus(U_L, L_higher)[1]
+            S2 = self.riemann.hugoniot_locus(U_R, R_higher)[0]
 
-        ax.plot(L_lower, R1, color='blue', label='R1', linestyle='dashed')
-        ax.plot(L_higher, S1, color='blue', label='S1')
-        ax.plot(R_lower, R2, color='orange', label='R2', linestyle='dashed')
-        ax.plot(R_higher, S2, color='orange', label='S2')
+            ax.plot(L_lower, R1, color='blue', label='R1', linestyle='dashed')
+            ax.plot(L_higher, S1, color='blue', label='S1')
+            ax.plot(R_lower, R2, color='orange', label='R2', linestyle='dashed')
+            ax.plot(R_higher, S2, color='orange', label='S2')
 
-        ax.set_xlabel(r'Mass density $\rho$', fontsize=13)
-        ax.set_ylabel(r'Momentum $m$', fontsize=13)
-        ax.set_title(title, fontsize=17)
-        ax.legend()
+            ax.set_xlabel(r'Mass density $\rho$', fontsize=13)
+            ax.set_ylabel(r'Momentum $m$', fontsize=13)
+            ax.set_title(title, fontsize=17)
+            ax.legend()
 
-        name_fig = 'Plots/'+name+'.png'
-        fig.savefig(name_fig, dpi=300)
-        plt.show()
+            name_fig = 'Plots/'+name+'.png'
+            fig.savefig(name_fig, dpi=300)
+            plt.show()
+        elif figure == False:
+            # only print qualitative solution to Riemann problem
+            sol = self.riemann.solve_riemann()
+            print(sol)
+        else:
+            raise ValueError("keyword 'figure' should be bool: True or False. ")
