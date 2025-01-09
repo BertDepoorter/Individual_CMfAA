@@ -194,8 +194,6 @@ class plotting:
         fig.savefig(name_plot, dpi=300)
         plt.show()
 
-
-
     def plot_integral_hugoniot(self, 
                                U, 
                                title='Hugoniot locus vs. integral curve', 
