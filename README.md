@@ -1,6 +1,7 @@
 # Individual_CMfAA
 Code for the individual assignment for 2024 CMfAA course
 
+Course: Computational Methods fro Astrophysical Applications. Taught by Rony Keppens and Jon Sundqvist ast KU leuven. The course covers with numerical methods to solve (mainly hyperbolic) systems of partial differential equations. 
 
 Assignment:
 Riemann problem for 1D isothermal hydro: make python scripts for getting the exact so-
