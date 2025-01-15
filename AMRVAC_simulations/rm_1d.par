@@ -1,0 +1,44 @@
+!setup.pl -d=1
+
+ &filelist
+        base_filename='data/run1/rm_1d'  ! Base file name for dat/vtu output
+        typefilelog='regression_test'
+        saveprim=.true.
+        autoconvert=.true.
+	convert_type='vtuBCCmpi'
+/
+
+ &savelist
+        dtsave_log=5.d-3
+ /
+
+ &stoplist
+        time_max=15.d-2
+ /
+
+ &methodlist
+        time_stepper=  'threestep'
+        flux_scheme=20*'hllc'
+        limiter='cada3'
+        flatsh=.true.
+ /
+
+ &boundlist
+        typeboundary_min1 = 3*'cont'
+        typeboundary_max1 = 3*'cont'
+ /
+
+ &meshlist
+        refine_criterion=1
+        refine_max_level=1
+        domain_nx1=64
+        xprobmin1=0.0d0
+        xprobmax1=1.0d0
+        iprob=1
+ /
+
+ &paramlist
+        typecourant='maxsum'
+        courantpar=0.9d0
+        slowsteps=10
+ /
